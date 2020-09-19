@@ -177,5 +177,61 @@ namespace Tests
             int score = new Calculator().Calculate(roll, combination);
             Assert.Equal(0, score);
         }
+
+        [Fact]
+        public void Calculate_Low_Straight_starting_with_1()
+        {
+            var roll = new List<int> { 1, 2, 3, 4, 1 };
+            var combination = Combination.LowStraight;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(30, score);
+        }
+
+        [Fact]
+        public void Calculate_Low_Straight_starting_with_2()
+        {
+            var roll = new List<int> { 5, 2, 3, 4, 5 };
+            var combination = Combination.LowStraight;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(30, score);
+        }
+
+        [Fact]
+        public void Calculate_Low_Straight_starting_with_3()
+        {
+            var roll = new List<int> { 3, 4, 5, 6, 6 };
+            var combination = Combination.LowStraight;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(30, score);
+        }
+
+        [Fact]
+        public void Calculate_Low_Straight_with_High_Straight()
+        {
+            var roll = new List<int> { 1, 2, 3, 4, 5 };
+            var combination = Combination.LowStraight;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(30, score);
+        }
+
+        [Fact]
+        public void Calculate_Low_Straight_without_Straight()
+        {
+            var roll = new List<int> { 1, 1, 1, 1, 1 };
+            var combination = Combination.LowStraight;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(0, score);
+        }
+
+        [Fact]
+        public void Calculate_Full_with_ones_and_twos()
+        {
+            var roll = new List<int> { 1, 1, 1, 2, 2 };
+            var combination = Combination.Full;
+            int score = new Calculator().Calculate(roll, combination);
+            Assert.Equal(25, score);
+        }
+
+
     }
 }

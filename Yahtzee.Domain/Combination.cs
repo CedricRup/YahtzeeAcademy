@@ -11,5 +11,7 @@
         Chance = 10,
         ThreeOfAKind = 11,
         HighStraight = 12,
+        LowStraight,
+        Full
     }
 }
