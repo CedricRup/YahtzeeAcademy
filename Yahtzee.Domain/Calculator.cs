@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Roll = System.Collections.Generic.List<int>;
 
 namespace Yahtzee.Domain
 {
@@ -12,43 +13,42 @@ namespace Yahtzee.Domain
         private static readonly int[] LowStraightWith2 = {2, 3, 4, 5};
         private static readonly int[] LowStraightWith3 = {3, 4, 5, 6};
 
-        public int Calculate(List<int> roll, Combination combination)
+        public int Calculate(Roll roll, Combination combination)
         {
-            return combination switch
+            var hashset = new HashSet<int>(roll);
+            static int Sum(Roll theRoll) => theRoll.Sum();
+            static bool AlwaysTrue(Roll _) => true;
+
+            bool IsHighStraight(Roll theRoll) =>
+                hashset.SetEquals(HighStraightWith1) || hashset.SetEquals(HighStraightWith6);
+
+            static bool IsThreeOfAKind(Roll roll) => roll.GroupBy(dice => dice).Any(g => g.Count() >= 3);
+            bool IsFull(Roll theRoll) => hashset.Count == 2;
+
+            bool IsLowStraight(Roll theRoll) =>
+                hashset.IsSupersetOf(LowStraightWith1)
+                || hashset.IsSupersetOf(LowStraightWith2)
+                || hashset.IsSupersetOf(LowStraightWith3);
+
+            int SumOfDicesOfAKind(Roll theRoll) =>
+                theRoll.Count(dice => dice == (int) combination) * (int) combination;
+
+            var dic = new Dictionary<Combination, ValueTuple<Predicate<Roll>, Func<Roll, int>>>
             {
-                Combination.Chance => roll.Sum(),
-                Combination.ThreeOfAKind => IsThreeOfAKind(roll) ? roll.Sum() : 0,
-                Combination.HighStraight => IsHighStraight(roll) ? 40 : 0,
-                Combination.LowStraight => IsLowStraight(roll) ? 30 : 0,
-                Combination.Full => IsFull(roll) ? 25 : 0,
-                _ => roll.Count(dice => dice == (int) combination) * (int) combination
+                {Combination.Chance, (AlwaysTrue, Sum)},
+                {Combination.ThreeOfAKind, (IsThreeOfAKind, Sum)},
+                {Combination.HighStraight, (IsHighStraight, _ => 40)},
+                {Combination.LowStraight, (IsLowStraight, _ => 30)},
+                {Combination.Full, (IsFull, _ => 25)}
             };
 
-            static bool IsHighStraight(List<int> roll)
-            {
-                var hashset = new HashSet<int>(roll);
-                return hashset.SetEquals(HighStraightWith1) || hashset.SetEquals(HighStraightWith6);
-            }
+            var recipe =
+                dic.TryGetValue(combination, out var toApply)
+                    ? toApply
+                    : (AlwaysTrue, SumOfDicesOfAKind);
 
-            static bool IsThreeOfAKind(List<int> roll)
-            {
-                return roll.GroupBy(dice => dice).Any(g => g.Count() >= 3);
-            }
-
-            static bool IsFull(List<int> roll)
-            {
-                return roll.ToHashSet().Count == 2;
-            }
-
-            static bool IsLowStraight(List<int> roll)
-            {
-                var hashset = new HashSet<int>(roll);
-                return hashset.IsSupersetOf(LowStraightWith1)
-                       || hashset.IsSupersetOf(LowStraightWith2)
-                       || hashset.IsSupersetOf(LowStraightWith3);
-            }
+            var (predicate, score) = recipe;
+            return predicate(roll) ? score(roll) : 0;
         }
-
-        
     }
 }
