@@ -9,7 +9,7 @@ namespace Yahtzee.Domain
         Dictionary<Box, int?> boxes = new Dictionary<Box, int?>();
 
 
-        public bool SetScore(Box box, List<int> roll)
+        public bool SetScore(Box box, Roll roll)
         {
             if (!boxes.ContainsKey(box))
             {
@@ -25,7 +25,8 @@ namespace Yahtzee.Domain
             return box switch
             {
                 Box.Aces => Combination.Ace,
-                Box.Twos => Combination.Two
+                Box.Twos => Combination.Two,
+                _ => throw new ArgumentOutOfRangeException(nameof(box), box, null)
             };
         }
 

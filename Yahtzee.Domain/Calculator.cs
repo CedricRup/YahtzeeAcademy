@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Roll = System.Collections.Generic.List<int>;
 
 namespace Yahtzee.Domain
 {
